@@ -11,5 +11,7 @@ void runDust();             //  Dust Sensor
 
 void loopBlink();
 void ledFlip(int pin);
+void initTurb();
+void runTurbidity();
 
 #endif

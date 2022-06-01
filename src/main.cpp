@@ -16,14 +16,14 @@ void setup()
   pinMode(LED_BUILTIN, OUTPUT);
   pinMode(LED_TURBID, OUTPUT);
 
-
-
-  // initDust();
+ initDust();
+ initTurb();
 }
 
 void loop()
 {
+
   loopBlink();          //  bUILTIN lED
-  // runDust();
+  runDust();
   runTurbidity();
 }

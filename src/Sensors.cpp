@@ -2,41 +2,56 @@
 #include "Sensors.h"
 
 /*  NOTES
-Dust sensor is  5 Volts
+    Dust sensor is  5 Volts
+    Dust reading every 30 seconds.
 */
 
+unsigned long loopCounter = 10;
 /*  DUST SENSOR */
 unsigned long dustDuration;
-unsigned long dustStartTime;
-unsigned long dustSampletime_ms = 30000; // sample 30s ;
+unsigned long dustStartTime;             // millis timeer
+unsigned long dustSampletime_ms = 30000; // sample period 30s ;
 unsigned long lowpulseoccupancy = 0;
 float ratio = 0;
 float concentration = 0;
 
 /*  TURBIDITY SENSOR */
-int digitalTurbidVal = 0;         //  Turbidity sensor init val.
-
+int digitalTurbidVal = 0;                  //  Turbidity sensor init val.
+unsigned long turbidStartTime; // millis timeer
+unsigned long turbidSampletime_ms = 30000; // sample period 30s ;
 
 /*  FUNCTIONS */
 void loopBlink()
 {
+    loopCounter--;
+    if(loopCounter == 0){
+        loopCounter = 10;
+    }
     digitalWrite(LED_BUILTIN, LOW);
     delay(1000);
-    Serial.println("LOOP ");
+    Serial.print("LOOP ");
+    Serial.println(loopCounter);
     digitalWrite(LED_BUILTIN, HIGH);
     delay(1000);
+    Serial.println(" ");
 }
 
-void ledFlip(int pin)              //  BLUE led for water level
-{                                  //  Yellow led for moisture                     
-         digitalWrite(pin , HIGH); //
-         delay(200);               //   RED water dirty
-         digitalWrite(pin , LOW);
-         delay(200);
+void ledFlip(int pin)        //  BLUE led for water level
+{                            //  Yellow led for moisture
+    digitalWrite(pin, HIGH); //
+    delay(200);              //   RED water dirty
+    digitalWrite(pin, LOW);
+    delay(200);
 }
 
-void initDust(){
-  dustStartTime = millis(); // get the current time for Dust Sensor;
+void initDust()
+{
+    dustStartTime = millis(); // get the current time for Dust Sensor;
+}
+
+void initTurb()
+{
+    turbidStartTime = millis(); // get the current time for Dust Sensor;
 }
 
 void runDust()
@@ -64,24 +79,23 @@ void runDust()
 
 void runTurbidity()
 {
-  Serial.println(">>>>>> TURBIDITY ");
-  digitalTurbidVal = digitalRead(PIN_TURB);
-  Serial.print("Raw pin: ");
-  Serial.println(digitalTurbidVal);
+    if ((millis() - turbidStartTime) > turbidSampletime_ms) // if the sample time == 30s
+    {
+        Serial.println("~~~ Turbidity Sensor ~~~ ");
+        digitalTurbidVal = digitalRead(PIN_TURB);
+        Serial.print("Raw pin: ");
+        Serial.println(digitalTurbidVal);
 
-  if (digitalTurbidVal == 0)
-  {
-    ledFlip(LED_TURBID);
-    Serial.println("Water is too dirty.");
-  }
-  else
-  {
-    digitalWrite(LED_TURBID, LOW);
-  }
-  Serial.println(" ");
+        if (digitalTurbidVal == 0)
+        {
+            ledFlip(LED_TURBID);
+            Serial.println("Water is too dirty.");
+        }
+        else
+        {
+            digitalWrite(LED_TURBID, LOW);
+        }
+        Serial.println(" ");
+        turbidStartTime = millis();
+    }
 }
-
-
-
-
-
