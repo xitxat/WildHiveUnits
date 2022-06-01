@@ -1,6 +1,10 @@
 #include <Arduino.h>
 #include "Sensors.h"
 
+/*  NOTES
+Dust sensor is  5 Volts
+*/
+
 /*  DUST SENSOR */
 unsigned long dustDuration;
 unsigned long dustStartTime;
@@ -8,6 +12,10 @@ unsigned long dustSampletime_ms = 30000; // sample 30s ;
 unsigned long lowpulseoccupancy = 0;
 float ratio = 0;
 float concentration = 0;
+
+/*  TURBIDITY SENSOR */
+int digitalTurbidVal = 0;         //  Turbidity sensor init val.
+
 
 /*  FUNCTIONS */
 void loopBlink()
@@ -17,6 +25,14 @@ void loopBlink()
     Serial.println("LOOP ");
     digitalWrite(LED_BUILTIN, HIGH);
     delay(1000);
+}
+
+void ledFlip(int pin)              //  BLUE led for water level
+{                                  //  Yellow led for moisture                     
+         digitalWrite(pin , HIGH); //
+         delay(200);               //   RED water dirty
+         digitalWrite(pin , LOW);
+         delay(200);
 }
 
 void initDust(){
@@ -45,4 +61,27 @@ void runDust()
         dustStartTime = millis();
     }
 }
+
+void runTurbidity()
+{
+  Serial.println(">>>>>> TURBIDITY ");
+  digitalTurbidVal = digitalRead(PIN_TURB);
+  Serial.print("Raw pin: ");
+  Serial.println(digitalTurbidVal);
+
+  if (digitalTurbidVal == 0)
+  {
+    ledFlip(LED_TURBID);
+    Serial.println("Water is too dirty.");
+  }
+  else
+  {
+    digitalWrite(LED_TURBID, LOW);
+  }
+  Serial.println(" ");
+}
+
+
+
+
 

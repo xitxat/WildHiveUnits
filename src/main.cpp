@@ -1,8 +1,7 @@
 #include <Arduino.h>
 #include <Sensors.h>
-/*  NOTES
-Dust sensor is  5 Volts
-*/
+
+
 
 
 
@@ -12,16 +11,19 @@ void setup()
   while (!Serial)
     ;
   pinMode(PIN_DUST, INPUT);
+  pinMode(PIN_TURB, INPUT);
+
   pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(LED_TURBID, OUTPUT);
 
-  initDust();
 
+
+  // initDust();
 }
 
 void loop()
 {
-  loopBlink();
-  runDust();
-
-
+  loopBlink();          //  bUILTIN lED
+  // runDust();
+  runTurbidity();
 }
