@@ -20,6 +20,13 @@ int digitalTurbidVal = 0;                  //  Turbidity sensor init val.
 unsigned long turbidStartTime; // millis timeer
 unsigned long turbidSampletime_ms = 30000; // sample period 30s ;
 
+/*  LDR SENSOR  */
+const int  PIN_LDR  = A0;            // Light sensor with 10kOhm res.
+
+int analogPinVal; // Analog value from the sensor
+int lux;          //Lux value
+
+
 /*  FUNCTIONS */
 void loopBlink()
 {
@@ -99,3 +106,30 @@ void runTurbidity()
         turbidStartTime = millis();
     }
 }
+
+int sensorRawToPhys(int raw)    //  analog read to Lux
+{
+  // Conversion rule
+  float Vout = float(raw) * (VIN / float(1023));// Conversion analog to voltage
+  float RLDR = (R * (VIN - Vout))/Vout;         // Conversion voltage to resistance
+  int phys=500/(RLDR/1000);                     // Conversion resitance to lumen
+  return phys;
+}
+
+void runLDR(){
+  analogPinVal = analogRead(PIN_LDR);
+    if (analogPinVal == 1024)  //(analogRead(PIN_LDR) < 1024)
+    {
+analogPinVal = 1023;
+    }
+  lux=sensorRawToPhys(analogPinVal);
+
+  Serial.print("Raw value from sensor= ");
+  Serial.println(analogPinVal); // the analog reading
+  Serial.print("Physical value from sensor = ");
+  Serial.print(lux); // the analog reading
+  Serial.println(" lumen"); // the analog reading
+   delay(DELAY_LDR);
+}
+
+

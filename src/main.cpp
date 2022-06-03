@@ -5,6 +5,8 @@
 
 
 
+
+
 void setup()
 {
   Serial.begin(9600);
@@ -26,4 +28,6 @@ void loop()
   loopBlink();          //  bUILTIN lED
   runDust();
   runTurbidity();
+  runLDR();
+
 }
