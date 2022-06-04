@@ -244,7 +244,7 @@ void runBMP180()
     abPres = bmp.readPressure();
 
     Serial.println("~~~~~~  BMP 180 Calibrated ");
-    calToSeaPres = (((abPres) / pow((1 - ((float)(1040)) / 44330), 5.255)) / 100.0);
+    calToSeaPres = (((abPres) / pow((1 - ((float)(1040)) / 44330), 5.255)) / 100.0);  // 1040 ALTITUDE
 
     Serial.print("Temperature = ");
     Serial.print(bmp.readTemperature());

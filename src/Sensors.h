@@ -1,14 +1,14 @@
 #ifndef SENSORS_WILD_HIVE_UNIT_H
 #define SENSORS_WILD_HIVE_UNIT_H
 
-#define PIN_DUST D8 // Dust wire is plugged into D8 on the NodeMCU
-#define PIN_TURB D5
+#define PIN_DUST D8     // 5V. Dust wire is plugged into D8 on the NodeMCU
+#define PIN_TURB D5     // 5V. 
 
 #define LED_TURBID D6
-
-#define DELAY_LDR 500 // Delay between two measurements in ms
-#define VIN 5         // V power voltage
-#define R 1000        // ohm resistance value. 10K for indoor readings / 1K for outdoor
+                        // LDR: 1 pin to +5V. 2nd pin to A0 AND parallel to resistor to ground.
+#define DELAY_LDR 500   // Delay between two measurements in ms
+#define VIN 5           // V power voltage
+#define R 1000          // ohm resistance value. 10K for indoor readings / 1K for outdoor
 
 /*     FCN protos   */
 void scanI2cBus();
