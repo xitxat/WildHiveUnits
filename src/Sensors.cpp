@@ -1,9 +1,12 @@
 #include <Arduino.h>
 #include "Sensors.h"
+#include <Wire.h>
+#include <Adafruit_AHTX0.h>  //  10 & 20
+#include <Adafruit_BMP085.h> // includes BMP180
 
 /*  NOTES
     Dust sensor is  5 Volts
-    Dust reading every 30 seconds.
+    I2C:    SDA=D2 and SCL=D1
 */
 
 unsigned long loopCounter = 10;
@@ -17,21 +20,34 @@ float concentration = 0;
 
 /*  TURBIDITY SENSOR */
 int digitalTurbidVal = 0;                  //  Turbidity sensor init val.
-unsigned long turbidStartTime; // millis timeer
+unsigned long turbidStartTime;             // millis timeer
 unsigned long turbidSampletime_ms = 30000; // sample period 30s ;
 
 /*  LDR SENSOR  */
-const int  PIN_LDR  = A0;            // Light sensor with 10kOhm res.
+const int PIN_LDR = A0; // Light sensor with 10kOhm res.
 
 int analogPinVal; // Analog value from the sensor
-int lux;          //Lux value
+int lux;          // Lux value
 
+/*  AHT Temp Humidity   */
+float ahtHumid; // AHT 2x
+float ahtTemp;  // AHT 2x
+
+/* BMP 180 Temp Pressure hPa    */
+float abPres;       // raw value
+float calToSeaPres; // convert raw to relative
+float cur180Temp;   // BMP180
+
+/*  CREATE  */
+Adafruit_AHTX0 aht;
+Adafruit_BMP085 bmp;
 
 /*  FUNCTIONS */
 void loopBlink()
 {
     loopCounter--;
-    if(loopCounter == 0){
+    if (loopCounter == 0)
+    {
         loopCounter = 10;
     }
     digitalWrite(LED_BUILTIN, LOW);
@@ -107,29 +123,156 @@ void runTurbidity()
     }
 }
 
-int sensorRawToPhys(int raw)    //  analog read to Lux
+int sensorRawToPhys(int raw) //  analog read to Lux
 {
-  // Conversion rule
-  float Vout = float(raw) * (VIN / float(1023));// Conversion analog to voltage
-  float RLDR = (R * (VIN - Vout))/Vout;         // Conversion voltage to resistance
-  int phys=500/(RLDR/1000);                     // Conversion resitance to lumen
-  return phys;
+    // Conversion rule
+    float Vout = float(raw) * (VIN / float(1023)); // Conversion analog to voltage
+    float RLDR = (R * (VIN - Vout)) / Vout;        // Conversion voltage to resistance
+    int phys = 500 / (RLDR / 1000);                // Conversion resitance to lumen
+    return phys;
 }
 
-void runLDR(){
-  analogPinVal = analogRead(PIN_LDR);
-    if (analogPinVal == 1024)  //(analogRead(PIN_LDR) < 1024)
+void runLDR()
+{
+    analogPinVal = analogRead(PIN_LDR);
+    if (analogPinVal == 1024) //(analogRead(PIN_LDR) < 1024)
     {
-analogPinVal = 1023;
+        analogPinVal = 1023;
     }
-  lux=sensorRawToPhys(analogPinVal);
+    lux = sensorRawToPhys(analogPinVal);
 
-  Serial.print("Raw value from sensor= ");
-  Serial.println(analogPinVal); // the analog reading
-  Serial.print("Physical value from sensor = ");
-  Serial.print(lux); // the analog reading
-  Serial.println(" lumen"); // the analog reading
-   delay(DELAY_LDR);
+    Serial.print("Raw value from sensor= ");
+    Serial.println(analogPinVal); // the analog reading
+    Serial.print("Physical value from sensor = ");
+    Serial.print(lux);        // the analog reading
+    Serial.println(" lumen"); // the analog reading
+    delay(DELAY_LDR);
 }
 
+void initAHT()
+{
+    Serial.println();
+    Serial.println("init AHT");
 
+    if (!aht.begin())
+    {
+        Serial.println("Could not find AHT. Check wiring");
+        while (1)
+            delay(10);
+    }
+    Serial.println("AHT10 or AHT20 found");
+}
+
+void runAHT()
+{
+    sensors_event_t humidity, temp;
+    aht.getEvent(&humidity, &temp); // populate temp and humidity objects with fresh data
+
+    ahtTemp = temp.temperature;
+    ahtHumid = humidity.relative_humidity;
+
+    Serial.println();
+    Serial.println("~~~~~~ AHT temp & humidity");
+    Serial.print("AHT Outside Temperature: ");
+    Serial.print(temp.temperature);
+    Serial.println(" degrees C");
+    Serial.print("AHT Humidity: ");
+    Serial.print(humidity.relative_humidity);
+    Serial.println("% rH");
+    Serial.println();
+}
+
+void scanI2cBus()
+{
+    byte error, address;
+    int nDevices;
+    Serial.println(" ");
+    Serial.println("~~~~~~ I2C Scanning...");
+    nDevices = 0;
+    for (address = 1; address < 127; address++)
+    {
+        Wire.beginTransmission(address);
+        error = Wire.endTransmission();
+        if (error == 0)
+        {
+            Serial.print("I2C device found at address 0x");
+            if (address < 16)
+            {
+                Serial.print("0");
+            }
+            Serial.println(address, HEX);
+            nDevices++;
+        }
+        else if (error == 4)
+        {
+            Serial.print("Unknow error at address 0x");
+            if (address < 16)
+            {
+                Serial.print("0");
+            }
+            Serial.println(address, HEX);
+        }
+    }
+    if (nDevices == 0)
+    {
+        Serial.println("No I2C devices found\n");
+    }
+    else
+    {
+        Serial.println("done\n");
+    }
+    delay(200);
+}
+
+void initBMP180()
+{
+    if (!bmp.begin())
+    {
+        Serial.println("Could not find a valid BMP085 sensor, check wiring!");
+        while (1)
+        {
+        }
+    }
+
+    Serial.println("BMP 180 found");
+}
+
+void runBMP180()
+{
+    // absol Pres to relative Pres:  SLpressure_mB = (((pressure)/pow((1-((float)(ELEVATION))/44330), 5.255))/100.0)
+    cur180Temp = bmp.readTemperature();
+    abPres = bmp.readPressure();
+
+    Serial.println("~~~~~~  BMP 180 Calibrated ");
+    calToSeaPres = (((abPres) / pow((1 - ((float)(1040)) / 44330), 5.255)) / 100.0);
+
+    Serial.print("Temperature = ");
+    Serial.print(bmp.readTemperature());
+    Serial.println(" *C");
+
+    Serial.print("Pressure = ");
+    Serial.print(calToSeaPres);
+    Serial.println("mBarPa");
+    Serial.println(" ");
+
+    //  from ESP Lounge
+    // abPres = bmp.readPressure() / 100.0;
+    // calToSeaPres = abPres * exp(1040 / (29.3 * (abPres + 300))); //  273.15
+
+    // from Net
+    // calToSeaPres = abPres + 1040 / 8.3;
+    // Serial.println(calToSeaPres);
+    // Serial.println(" ");
+
+    // from Ada Lib
+    // Serial.println(" ");
+    // Serial.println("~~~~~~  BMP 180");
+    // Serial.print("Temperature = ");
+    // Serial.print(bmp.readTemperature());
+    // Serial.println(" *C");
+
+    // Serial.print("Pressure = ");
+    // Serial.print(bmp.readPressure());
+    // Serial.println(" Pa");
+    // Serial.println(" ");
+}
