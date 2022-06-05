@@ -252,7 +252,7 @@ void runBMP180()
 
     Serial.print("Pressure = ");
     Serial.print(calToSeaPres);
-    Serial.println("mBarPa");
+    Serial.println(" mBar");
     Serial.println(" ");
 
     //  from ESP Lounge

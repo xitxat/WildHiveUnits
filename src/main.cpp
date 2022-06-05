@@ -24,9 +24,6 @@ void connectToMqtt()
 {
   mqttClient.connect();
   Serial.println(">>>>>> Connecting to MQTT...");
-  Serial.println(".");
-  delay(100);
-  Serial.println("..");
 }
 
 void onMqttConnect(bool sessionPresent)
@@ -60,8 +57,6 @@ void connectToWifi()
 { 
   WiFi.begin(SECRET_SSID, SECRET_PASS);             // secrets.h
   Serial.print(">>>>>>  Connecting to Wi-Fi...");
-  Serial.print("."); delay(50); Serial.print(".."); delay(50); Serial.print("..."); delay(50);   Serial.println("....*");
-
 }
 
 void onWifiConnect(const WiFiEventStationModeGotIP &event)
@@ -70,7 +65,6 @@ void onWifiConnect(const WiFiEventStationModeGotIP &event)
   Serial.println("******  Connected to Wi-Fi. ");
   Serial.println("");
   Serial.println(">>>>>>  Establishing MQTT connection");
-  Serial.print("."); delay(50); Serial.print(".."); delay(50); Serial.print("..."); delay(50);   Serial.println("....*");
 }
 
 void onWifiDisconnect(const WiFiEventStationModeDisconnected &event)
@@ -107,7 +101,12 @@ void setup()
 
   pinMode(LED_BUILTIN, OUTPUT);
   pinMode(LED_TURBID, OUTPUT);
-
+  delay(500);
+  Serial.println("");
+  Serial.println("");
+  Serial.println("~~~~~~  WILD HIVE UNITS");
+  Serial.print("."); delay(250); Serial.print(".."); delay(250); Serial.print("..."); delay(250); Serial.println("...."); delay(250); Serial.println("*");
+  Serial.println("");
   Serial.println("~~~~~~  MQTT setup");
   setupMqtt();   //  WiFi & MQTT
 
