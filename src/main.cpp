@@ -162,17 +162,36 @@ void loop()
     Serial.printf("Publishing on topic %s at QoS 1, packetId: %i ", MQTT_PUB_DUST_CONSEN, packetIdPub3);
     Serial.printf("Message: %.2f \n", concentration);
 
+   // LDR.     Pub  MQTT message on topic nodemcu/wildhiveunit/ldr
+    uint16_t packetIdPub4 = mqttClient.publish(MQTT_PUB_LDR, 1, true, String(lux).c_str());
+    Serial.printf("Publishing on topic %s at QoS 1, packetId: %i ", MQTT_PUB_LDR, packetIdPub4);
+    Serial.printf("Message: %d \n", lux);
+
+   // BMP 180 Temperature.     Pub  MQTT message on topic nodemcu/wildhiveunit/bmp180/temp
+    uint16_t packetIdPub5 = mqttClient.publish(MQTT_PUB_BMP180_TEMP, 1, true, String(cur180Temp).c_str());
+    Serial.printf("Publishing on topic %s at QoS 1, packetId: %i ", MQTT_PUB_BMP180_TEMP, packetIdPub5);
+    Serial.printf("Message: %.2f \n", cur180Temp);
+
+   // BMP 180 Pressure.     Pub  MQTT message on topic nodemcu/wildhiveunit/bmp180/pres
+    uint16_t packetIdPub6 = mqttClient.publish(MQTT_PUB_BMP180_PRES, 1, true, String(calToSeaPres).c_str());
+    Serial.printf("Publishing on topic %s at QoS 1, packetId: %i ", MQTT_PUB_BMP180_PRES, packetIdPub6);
+    Serial.printf("Message: %.2f \n", calToSeaPres);
 
     // Turbidity.      Pub MQTT message on topic nodemcu/wildhiveunit/turbid
     uint16_t packetIdPub7 = mqttClient.publish(MQTT_PUB_TURBID, 1, true, String(digitalTurbidVal).c_str());
     Serial.printf("Publishing on topic %s at QoS 1, packetId: %i ", MQTT_PUB_TURBID, packetIdPub7);
     Serial.printf("Message: %i \n", digitalTurbidVal);
     
+    // AHT Humidity.      Pub MQTT message on topic nodemcu/wildhiveunit/aht/humid
+    uint16_t packetIdPub8 = mqttClient.publish(MQTT_PUB_AHT_HUMID, 1, true, String(ahtHumid).c_str());
+    Serial.printf("Publishing on topic %s at QoS 1, packetId: %i ", MQTT_PUB_AHT_HUMID, packetIdPub8);
+    Serial.printf("Message: %.2f \n", ahtHumid);
+ 
 
-    // Motion Detection.     Pub  MQTT message on topic nodemcu/wildhive/motion_detect
-    uint16_t packetIdPub4 = mqttClient.publish(MQTT_PUB_MOTION_DETECT, 1, true, String(pirVal).c_str());
-    Serial.printf("Publishing on topic %s at QoS 1, packetId: %i ", MQTT_PUB_MOTION_DETECT, packetIdPub4);
-    Serial.printf("Message: %d \n", pirVal);
+
+
+
+
 
   } // X millis mqtt send timer
 

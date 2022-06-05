@@ -10,6 +10,20 @@
 #define VIN 5           // V power voltage
 #define R 1000          // ohm resistance value. 10K for indoor readings / 1K for outdoor
 
+        /* MQTT DATA    */      // Pure decleration. Solves OOScope  error in mqtt PUB statements.   
+                                // Called in main.cpp         
+extern unsigned long lowpulseoccupancy;
+extern float ratio;
+extern float concentration;
+extern int lux;
+extern float cur180Temp;
+extern float calToSeaPres;
+extern int digitalTurbidVal;
+extern float ahtHumid;
+
+
+
+
 /*     FCN protos   */
 void scanI2cBus();
 
@@ -30,5 +44,8 @@ void runAHT();
 
 void initBMP180();
 void runBMP180();
+
+
+
 
 #endif
