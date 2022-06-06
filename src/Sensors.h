@@ -10,6 +10,8 @@
 #define VIN 5           // V power voltage
 #define R 1000          // ohm resistance value. 10K for indoor readings / 1K for outdoor
 
+#define ONE_WIRE_BUS D7 // Dallas hive temp
+
         /* MQTT DATA    */      // Pure decleration. Solves OOScope  error in mqtt PUB statements.   
                                 // Called in main.cpp         
 extern unsigned long lowpulseoccupancy;
@@ -45,7 +47,8 @@ void runAHT();
 void initBMP180();
 void runBMP180();
 
-
+void initDallas();
+void runDallasByIndex();
 
 
 #endif

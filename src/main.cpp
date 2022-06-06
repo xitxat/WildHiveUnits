@@ -6,6 +6,9 @@
 #include <Sensors.h>
 #include <Wire.h>            //  I2C
 #include "mqttNodeRed.h"
+#include <OneWire.h>
+#include <DallasTemperature.h>
+
 
 AsyncMqttClient mqttClient;
 Ticker mqttReconnectTimer;
@@ -96,6 +99,7 @@ void setup()
 
   Wire.begin(D2, D1);         //join i2c bus with SDA=D2 and SCL=D1 of NodeMCU
 
+
   pinMode(PIN_DUST, INPUT);
   pinMode(PIN_TURB, INPUT);
 
@@ -119,6 +123,7 @@ void setup()
   initAHT();
 initBMP180();
 
+initDallas();
 
 }
 
@@ -132,6 +137,13 @@ void loop()
 
   runAHT();
   runBMP180();
+
+//  TESTING
+
+runDallasByIndex();
+
+
+//  END TEST
 
 //*************************** MQTT SENDER ***
   unsigned long currentMillis = millis(); // Publishes a new MQTT message (mqttPubInterval = 10 seconds)

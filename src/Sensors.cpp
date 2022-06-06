@@ -3,6 +3,8 @@
 #include <Wire.h>
 #include <Adafruit_AHTX0.h>  //  10 & 20
 #include <Adafruit_BMP085.h> // includes BMP180
+#include <OneWire.h>
+#include <DallasTemperature.h>
 
 /*  NOTES
     Dust sensor is  5 Volts
@@ -41,6 +43,10 @@ float cur180Temp;   // BMP180
 /*  CREATE  */
 Adafruit_AHTX0 aht;
 Adafruit_BMP085 bmp;
+
+OneWire oneWire(ONE_WIRE_BUS);
+DallasTemperature sensors(&oneWire);    // Pass our oneWire reference to Dallas Temperature sensor 
+
 
 /*  FUNCTIONS */
 void loopBlink()
@@ -276,3 +282,24 @@ void runBMP180()
     // Serial.println(" Pa");
     // Serial.println(" ");
 }
+
+void initDallas()
+{
+    Serial.println("~~~~~~  DALLAS setup");
+      Serial.println(" ");
+  sensors.begin();  // Start the DS18B20 sensor
+}
+
+void runDallasByIndex()
+{
+  sensors.requestTemperatures(); 
+  float temperatureC = sensors.getTempCByIndex(0);
+    Serial.println("DALLAS Hive Core Temperature:");
+
+  Serial.print(temperatureC);
+  Serial.println("ºC");
+    Serial.println(" ");
+
+  delay(1000);
+}
+
