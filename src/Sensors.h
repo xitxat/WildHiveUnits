@@ -24,6 +24,7 @@ extern float calToSeaPres;
 extern int digitalTurbidVal;
 extern float ahtHumid;
 extern int numberOfDevices;
+extern float coreTemp;
 
 
 
@@ -35,7 +36,9 @@ void initDust();
 void runDust(); //  Dust Sensor
 
 void loopBlink();
+void publishBlink();
 void ledFlip(int pin);
+void dotDash();
 
 void initTurb();
 void runTurbidity();
@@ -51,6 +54,7 @@ void runBMP180();
 
 void initDallas();
 //void printAddress(DeviceAddress deviceAddress); cant fwd declare?
+void printDualProbes();
 void runDallasByIndex();
 void oneWireScanner();
 

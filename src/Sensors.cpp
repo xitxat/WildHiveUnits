@@ -42,6 +42,7 @@ float cur180Temp;   // BMP180
 
 /*  DALLAS  */
 int numberOfDevices; // Number of Dallas temperature devices found
+float coreTemp;
 
 /*  CREATE  */
 Adafruit_AHTX0 aht;
@@ -50,7 +51,7 @@ Adafruit_BMP085 bmp;
 OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature sensors(&oneWire); // Pass our oneWire reference to Dallas Temperature sensor
 DeviceAddress tempDeviceAddress;     // We'll use this variable to store a found device address
-DeviceAddress wildHiveCore = {0x28, 0x00, 0x3D, 0x1C, 0x26, 0x4C, 0x0E, 0xD0};  //  Extended fcns avail. ref:WildHive project
+DeviceAddress wildHiveCoreProbe = {0x28, 0x00, 0x3D, 0x1C, 0x26, 0x4C, 0x0E, 0xD0};  //  Extended fcns avail. ref:WildHive project
                                                                                 //  Blue wrap. Not waterproof.
 /*  FUNCTIONS */
 void loopBlink()
@@ -69,6 +70,22 @@ void loopBlink()
     Serial.println(" ");
 }
 
+void publishBlink()
+{
+    digitalWrite(LED_BUILTIN, LOW);
+    delay(200);
+    digitalWrite(LED_BUILTIN, HIGH);
+    delay(200);
+    digitalWrite(LED_BUILTIN, LOW);
+    delay(200);
+    digitalWrite(LED_BUILTIN, HIGH);
+    delay(200);
+        digitalWrite(LED_BUILTIN, LOW);
+    delay(200);
+    digitalWrite(LED_BUILTIN, HIGH);
+    delay(200);
+}
+
 void ledFlip(int pin)        //  BLUE led for water level
 {                            //  Yellow led for moisture
     digitalWrite(pin, HIGH); //
@@ -76,6 +93,19 @@ void ledFlip(int pin)        //  BLUE led for water level
     digitalWrite(pin, LOW);
     delay(200);
 }
+
+  void dotDash()
+  {
+  Serial.print(".");
+  delay(250);
+  Serial.print("..");
+  delay(250);
+  Serial.print("...");
+  delay(250);
+  Serial.print("....");
+  delay(250);
+  Serial.println("*");
+  }
 
 void initDust()
 {
@@ -324,7 +354,8 @@ void runDallasByIndex()
     Serial.println("DALLAS Hive Core Temperature:");
 
     Serial.print(temperatureC);
-    Serial.println("ºC");
+    Serial.print("ºC");
+        Serial.println("    (Device index 0)");
     Serial.println(" ");
 
     delay(1000);
@@ -371,8 +402,22 @@ delay(500);
             Serial.print("Found ghost device at ");
             Serial.print(i, DEC);
             Serial.print(" but could not detect address. Check power and cabling");
+            Serial.println();
             }
         }
     }
     delay(200);
+}
+
+
+void printDualProbes()                            //  Print soil and water temps
+{
+  coreTemp = sensors.getTempC(wildHiveCoreProbe);
+  Serial.print("Wild Hive Core Temp: ");
+  Serial.println(coreTemp);
+//   soilTemp = sensors.getTempC(soilProbe);
+//   Serial.print("Soil temp is: ");
+//   Serial.println(soilTemp);
+
+  Serial.println();
 }
