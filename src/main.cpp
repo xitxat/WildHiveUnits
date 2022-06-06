@@ -122,7 +122,6 @@ void setup()
 
   initAHT();
 initBMP180();
-
 initDallas();
 
 }
@@ -137,10 +136,10 @@ void loop()
 
   runAHT();
   runBMP180();
+runDallasByIndex();
 
 //  TESTING
 
-runDallasByIndex();
 
 
 //  END TEST

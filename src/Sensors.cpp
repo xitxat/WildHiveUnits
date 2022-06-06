@@ -288,6 +288,12 @@ void initDallas()
     Serial.println("~~~~~~  DALLAS setup");
       Serial.println(" ");
   sensors.begin();  // Start the DS18B20 sensor
+
+    Serial.println("~~~~~~  OneWire Scan");
+  oneWireScanner();
+
+      Serial.println(" ");
+
 }
 
 void runDallasByIndex()
@@ -301,5 +307,15 @@ void runDallasByIndex()
     Serial.println(" ");
 
   delay(1000);
+}
+
+void oneWireScanner()
+{
+    // locate devices on the bus
+  Serial.print("Locating devices...");
+  Serial.print("Found ");
+  Serial.print(sensors.getDeviceCount(), DEC);
+  Serial.println(" devices.");
+delay(200);
 }
 

@@ -49,6 +49,7 @@ void runBMP180();
 
 void initDallas();
 void runDallasByIndex();
+void oneWireScanner();
 
 
 #endif
