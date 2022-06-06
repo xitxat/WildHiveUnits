@@ -106,34 +106,31 @@ void setup()
   Serial.println("");
   Serial.println("");
   Serial.println("~~~~~~  WILD HIVE UNITS");
-  Serial.print(".");
-  delay(250);
-  Serial.print("..");
-  delay(250);
-  Serial.print("...");
-  delay(250);
-  Serial.print("....");
-  delay(250);
-  Serial.println("*");
+  dotDash();
+
+
   Serial.println("");
   Serial.println("~~~~~~  MQTT setup");
-  setupMqtt(); //  WiFi & MQTT
+  dotDash();
+  setupMqtt();      //  WiFi & MQTT
 
   Serial.println("~~~~~~  I2C Scanner setup");
+  dotDash();
   scanI2cBus();
+  initDallas();     //  + scanner
 
   initDust();
   initTurb();
 
   initAHT();
   initBMP180();
-  initDallas();
 }
 
 void loop()
 {
 
-  loopBlink(); //  bUILTIN lED
+  //loopBlink(); //  bUILTIN lED
+
   runDust();
   runTurbidity();
   runLDR();
@@ -141,6 +138,7 @@ void loop()
   runAHT();
   runBMP180();
   runDallasByIndex();
+  printDualProbes();
 
   //  TESTING
 
@@ -151,7 +149,7 @@ void loop()
 
   if (currentMillis - previousMillis >= mqttPubInterval)
   { // Save the last time a new reading was published
-
+    publishBlink();
     previousMillis = currentMillis;
     //  %i  int
     //  %d  decimal int,
@@ -198,6 +196,12 @@ void loop()
     uint16_t packetIdPub8 = mqttClient.publish(MQTT_PUB_AHT_HUMID, 1, true, String(ahtHumid).c_str());
     Serial.printf("Publishing on topic %s at QoS 1, packetId: %i ", MQTT_PUB_AHT_HUMID, packetIdPub8);
     Serial.printf("Message: %.2f \n", ahtHumid);
+
+    // DALLAS Core Temp.      Pub MQTT message on topic nodemcu/wildhiveunit/dallas/core
+    uint16_t packetIdPub9 = mqttClient.publish(MQTT_PUB_DALLAS_CORE, 1, true, String(coreTemp).c_str());
+    Serial.printf("Publishing on topic %s at QoS 1, packetId: %i ", MQTT_PUB_DALLAS_CORE, packetIdPub9);
+    Serial.printf("Message: %.2f \n", coreTemp);
+
 
   } // X millis mqtt send timer
 }
