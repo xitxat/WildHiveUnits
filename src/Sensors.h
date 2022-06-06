@@ -10,7 +10,8 @@
 #define VIN 5           // V power voltage
 #define R 1000          // ohm resistance value. 10K for indoor readings / 1K for outdoor
 
-#define ONE_WIRE_BUS D7 // Dallas hive temp
+#define ONE_WIRE_BUS D7         // Dallas hive temp
+#define TEMPERATURE_PRECISION 9
 
         /* MQTT DATA    */      // Pure decleration. Solves OOScope  error in mqtt PUB statements.   
                                 // Called in main.cpp         
@@ -22,6 +23,7 @@ extern float cur180Temp;
 extern float calToSeaPres;
 extern int digitalTurbidVal;
 extern float ahtHumid;
+extern int numberOfDevices;
 
 
 
@@ -48,6 +50,7 @@ void initBMP180();
 void runBMP180();
 
 void initDallas();
+//void printAddress(DeviceAddress deviceAddress); cant fwd declare?
 void runDallasByIndex();
 void oneWireScanner();
 

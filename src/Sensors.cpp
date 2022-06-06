@@ -40,14 +40,18 @@ float abPres;       // raw value
 float calToSeaPres; // convert raw to relative
 float cur180Temp;   // BMP180
 
+/*  DALLAS  */
+int numberOfDevices; // Number of Dallas temperature devices found
+
 /*  CREATE  */
 Adafruit_AHTX0 aht;
 Adafruit_BMP085 bmp;
 
 OneWire oneWire(ONE_WIRE_BUS);
-DallasTemperature sensors(&oneWire);    // Pass our oneWire reference to Dallas Temperature sensor 
-
-
+DallasTemperature sensors(&oneWire); // Pass our oneWire reference to Dallas Temperature sensor
+DeviceAddress tempDeviceAddress;     // We'll use this variable to store a found device address
+DeviceAddress wildHiveCore = {0x28, 0x00, 0x3D, 0x1C, 0x26, 0x4C, 0x0E, 0xD0};  //  Extended fcns avail. ref:WildHive project
+                                                                                //  Blue wrap. Not waterproof.
 /*  FUNCTIONS */
 void loopBlink()
 {
@@ -250,7 +254,7 @@ void runBMP180()
     abPres = bmp.readPressure();
 
     Serial.println("~~~~~~  BMP 180 Calibrated ");
-    calToSeaPres = (((abPres) / pow((1 - ((float)(1040)) / 44330), 5.255)) / 100.0);  // 1040 ALTITUDE
+    calToSeaPres = (((abPres) / pow((1 - ((float)(1040)) / 44330), 5.255)) / 100.0); // 1040 ALTITUDE
 
     Serial.print("Temperature = ");
     Serial.print(bmp.readTemperature());
@@ -286,36 +290,89 @@ void runBMP180()
 void initDallas()
 {
     Serial.println("~~~~~~  DALLAS setup");
-      Serial.println(" ");
-  sensors.begin();  // Start the DS18B20 sensor
+    Serial.println(" ");
+    sensors.begin(); // Start the DS18B20 sensor
 
     Serial.println("~~~~~~  OneWire Scan");
-  oneWireScanner();
+    oneWireScanner();
 
-      Serial.println(" ");
+    Serial.println(" ");
+}
 
+void printAddress(DeviceAddress deviceAddress) // function to print a device address
+{
+  for (uint8_t i = 0; i < 8; i++)
+  {
+    Serial.print("0x");
+    // zero pad the address if necessary
+
+    if (deviceAddress[i] < 16)
+      Serial.print("0"); // <16
+    Serial.print(deviceAddress[i], HEX);
+
+    if (i < 7)
+    {
+      Serial.print(", ");
+    }
+  }
 }
 
 void runDallasByIndex()
 {
-  sensors.requestTemperatures(); 
-  float temperatureC = sensors.getTempCByIndex(0);
+    sensors.requestTemperatures();
+    float temperatureC = sensors.getTempCByIndex(0);
     Serial.println("DALLAS Hive Core Temperature:");
 
-  Serial.print(temperatureC);
-  Serial.println("ºC");
+    Serial.print(temperatureC);
+    Serial.println("ºC");
     Serial.println(" ");
 
-  delay(1000);
+    delay(1000);
 }
 
 void oneWireScanner()
 {
     // locate devices on the bus
-  Serial.print("Locating devices...");
-  Serial.print("Found ");
-  Serial.print(sensors.getDeviceCount(), DEC);
-  Serial.println(" devices.");
-delay(200);
-}
+    Serial.print("Locating devices...");
+    Serial.print("Found ");
+    Serial.print(sensors.getDeviceCount(), DEC);
+    Serial.println(" devices.");
+    Serial.println(" ");
+delay(500);
 
+    // Grab a count of devices on the wire
+    numberOfDevices = sensors.getDeviceCount();
+    if (numberOfDevices >= 1)
+    {
+          // Loop through each device, print out address
+        for(int i=0;i<numberOfDevices; i++)
+        {
+            // Search the wire for address
+            if(sensors.getAddress(tempDeviceAddress, i))
+            {
+            Serial.print("Found device ");
+            Serial.print(i, DEC);
+            Serial.print(" with address: ");
+            printAddress(tempDeviceAddress);
+            Serial.println();
+delay(500);
+            Serial.print("   Setting resolution: ");
+            Serial.println(TEMPERATURE_PRECISION, DEC);
+
+            // set the resolution to TEMPERATURE_PRECISION bit (Each Dallas/Maxim device is capable of several different resolutions)
+            sensors.setResolution(tempDeviceAddress, TEMPERATURE_PRECISION);
+
+            Serial.print("Confirming resolution: ");
+            Serial.print(sensors.getResolution(tempDeviceAddress), DEC);
+            Serial.println();
+            delay(500);
+            }
+            else{
+            Serial.print("Found ghost device at ");
+            Serial.print(i, DEC);
+            Serial.print(" but could not detect address. Check power and cabling");
+            }
+        }
+    }
+    delay(200);
+}
